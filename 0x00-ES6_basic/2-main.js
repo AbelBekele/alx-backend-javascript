@@ -1,5 +1,9 @@
-import getNeighborhoodsList from './2-arrow.js';
+export default function getNeighborhoodsList() {
+  this.sanFranciscoNeighborhoods = ["SOMA", "Union Square"];
 
-const neighborhoodsList = new getNeighborhoodsList();
-const res = neighborhoodsList.addNeighborhood('Noe Valley');
-console.log(res);
+  const self = this;
+  this.addNeighborhood = (newNeighborhood) => {
+    self.sanFranciscoNeighborhoods.push(newNeighborhood);
+    return self.sanFranciscoNeighborhoods;
+  };
+}
