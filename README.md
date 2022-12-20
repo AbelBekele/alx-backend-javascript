@@ -1,1 +1,1 @@
-0x00. ES6 Basics
+AlX-Software Engineering Backend Specialization
