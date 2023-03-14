@@ -1,11 +1,17 @@
-const app = require('../server');
-const AppController = require('../controllers/AppController');
-const StudentsController = require('../controllers/StudentsController');
-const dbPath = process.argv[2];
-const router = app.Router()
+import AppController from '../controllers/AppController';
+import StudentsController from '../controllers/StudentsController';
 
-console.log('dbPath');
+/**
+ * Binds the routes to the appropriate handler in the
+ * given Express application.
+ * @param {Express} app The Express application.
+ * @author Bezaleel Olakunori <https://github.com/B3zaleel>
+ */
+const mapRoutes = (app) => {
+  app.get('/', AppController.getHomepage);
+  app.get('/students', StudentsController.getAllStudents);
+  app.get('/students/:major', StudentsController.getAllStudentsByMajor);
+};
 
-router.get('/', (res, req) => AppController.getHomepage(res, req));
-router.get('/students', (res, req) => StudentsController.getAllStudents(res, req, dbPath));
-router.get('/students/:major', (res, req) => StudentsController.getAllStudentsByMajor(res, req, dbPath));
+export default mapRoutes;
+module.exports = mapRoutes;
