@@ -1,50 +1,62 @@
 const fs = require('fs');
 
-const countStudents = (path, printFlag = 1) => new Promise((resolve, reject) => {
-  // Pull data from CSV file
-  try {
-    fs.readFile(path, 'utf-8', (err, data) => {
-      if (err) reject(Error('Cannot load the database'));
-      else {
-        const fileData = data
-          .split('\n')
-          .filter((row) => row !== '' && row.split(',').length >= 4)
-          .map((student) => student.split(','))
-          .slice(1)
-          .reduce((total, currentVal) => {
-            const eslint = total;
-            const subj = currentVal[currentVal.length - 1];
-            const firstName = currentVal[0];
+function countStudents(path) {
+  const promise = new Promise((resolve, reject) => {
+    fs.readFile(path,
+      'utf-8',
+      (error, results) => {
+        if (error) {
+          reject(Error('Cannot load the database'));
+        } else {
+          const lines = results.split('\n');
+          let i = 0;
+          let countStudents = 0;
+          let msg = '';
+          const fields = {};
 
-            if (typeof eslint[subj] === 'undefined') eslint[subj] = [firstName];
-            else eslint[subj].push(firstName);
+          const getLines = () => {
+            for (const line of lines) {
+              if (line.trim() !== '' && i > 0) {
+                countStudents += 1;
+								const [fname, lname, age, field] = line.split(','); // eslint-disable-line
+                if (!fields[field]) {
+                  fields[field] = {
+                    count: 1,
+                    students: [fname],
+                  };
+                } else {
+                  const newCount = fields[field].count + 1;
+                  const newStudents = (fields[field].students).concat(fname);
+                  fields[field] = {
+                    count: newCount,
+                    students: newStudents,
+                  };
+                }
+              }
+              i += 1;
+            }
+          };
 
-            return eslint;
-          }, {});
+          const display = async () => {
+            getLines();
+            console.log(`Number of students: ${countStudents}`);
+            msg += `Number of students: ${countStudents}\n`;
+            for (const field of Object.keys(fields)) {
+              const n = fields[field].count;
+              const names = fields[field].students.join(', ');
+              console.log(`Number of students in ${field}: ${n}. List: ${names}`);
+              msg += `Number of students in ${field}: ${n}. List: ${names}\n`;
+            }
+            msg = msg.slice(0, -1);
+          };
 
-        // Prepare Print Statements
-        let totalStudents = 0;
-        let output = '';
-
-        for (const field in fileData) {
-          if (fileData.hasOwnProperty) {
-            totalStudents += fileData[field].length;
-            output += `Number of students in ${field}: ${fileData[field].length}. List: ${fileData[field].join(', ')}\n`;
-          }
+          display();
+          resolve(msg);
         }
+      });
+  });
 
-        // Print necessary print statements
-        output = (`Number of students: ${totalStudents}\n${output}`).slice(0, -1);
-        if (printFlag) {
-          const p = output.split('\n');
-          for (const str of p) console.log(str);
-        }
-        resolve(output);
-      }
-    });
-  } catch (e) {
-    reject(Error('Cannot load the database'));
-  }
-});
+  return promise;
+}
 
 module.exports = countStudents;
